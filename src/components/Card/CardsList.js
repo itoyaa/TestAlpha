@@ -5,7 +5,7 @@ import classes from "./CardsList.module.css";
 import Card from "./Card";
 
 const CardsList = (props) => {
-  const isFilterd = useSelector((state) => state.faveFilter);
+  const isFilterd = useSelector((state) => state.moviesStore.faveFilter);
 
   if (isFilterd) {
     const faveMovies = props.data.filter((movie) => movie.isFave);
@@ -18,6 +18,8 @@ const CardsList = (props) => {
             description={movie.description}
             author={movie.author}
             release_date={movie.releaseDate}
+            id={movie.id}
+            isFave={movie.isFave}
           />
         ))}
       </div>
@@ -33,6 +35,8 @@ const CardsList = (props) => {
           description={movie.description}
           author={movie.author}
           release_date={movie.releaseDate}
+          id={movie.id}
+          isFave={movie.isFave}
         />
       ))}
     </div>

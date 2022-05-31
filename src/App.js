@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { moviesActions } from "./store/index";
 import { useSelector, useDispatch } from "react-redux";
 
 import classes from "./App.module.css";
@@ -10,10 +11,11 @@ import FilterButton from "./components/Filters/FilterButton";
 function App() {
   const dispatch = useDispatch();
 
-  // const [error, setError] = useState(null);
+  const [myError, setMyError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchMovieHandler = useCallback(async () => {
-    // setError(null);
+  const getMoviesHandler = useCallback(async () => {
+    setMyError(null);
 
     try {
       const response = await fetch("https://ghibliapi.herokuapp.com/films/");
@@ -23,7 +25,6 @@ function App() {
       }
 
       const data = await response.json();
-      console.log(data);
 
       const convertedData = data.map((movie) => {
         return {
@@ -35,24 +36,42 @@ function App() {
           isFave: false,
         };
       });
-      dispatch({ type: "init", data: convertedData });
+      dispatch(moviesActions.initMovies(convertedData));
     } catch (error) {
-      // setError(error.message);
-      console.log(error.message);
+      setMyError(error);
     }
+    setIsLoading(false);
   }, [dispatch]);
 
   useEffect(() => {
-    fetchMovieHandler();
-  }, [fetchMovieHandler]);
+    getMoviesHandler();
+  }, [getMoviesHandler]);
 
-  const movies = useSelector((state) => state.moviesDataArray);
+  const movies = useSelector((state) => state.moviesStore.moviesDataArray);
+
+  if (isLoading) {
+    return (
+      <Page>
+        <h1 className={classes.title}>Studio Ghibli API</h1>
+        <h2 className={classes.loading}>Loading...</h2>
+      </Page>
+    );
+  }
+
+  if (myError) {
+    return (
+      <Page>
+        <h1 className={classes.title}>Studio Ghibli API</h1>
+        <h2 className={classes.error}>{myError.message}</h2>
+      </Page>
+    );
+  }
 
   return (
     <Page>
       <h1 className={classes.title}>Studio Ghibli API</h1>
       <CardsList data={movies} />
-      <FilterButton pressed={true} />
+      <FilterButton />
     </Page>
   );
 }
